@@ -1,0 +1,1 @@
+export type Quality = 1080 | 720 | 480 | -1;
