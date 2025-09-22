@@ -55,7 +55,7 @@ class LoginPage extends BasePage<BaseProps, LoginPageState>{
                 recaptchaToken: this.state.recaptchaValue,
             }
 
-            const response = await this.postToAuth<AuthResponse, LoginRequest>("/admin/login", data)
+            const response = await this.postToAuth<AuthResponse, LoginRequest>("/login", data)
 
             if(response){
                 if(this.context && this.context.login){

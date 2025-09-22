@@ -49,14 +49,18 @@ export class UserProvider extends React.PureComponent<{children: ReactNode}, Use
         const expiresIn = localStorage.getItem("expiresIn");
         const userStorage = localStorage.getItem("user")
 
-        if (accessToken && refreshToken && expiresIn && userStorage) {
-            const user: User = JSON.parse(userStorage);
-            this.setState({
-                isLoggedIn: true,
-                user,
-                isAdmin: user.roles.some(role => role.name === UserRole.ADMIN),
-                isSuperAdmin: user.superUser
-            });
+        try{
+            if (accessToken && refreshToken && expiresIn && userStorage) {
+                const user: User = JSON.parse(userStorage);
+                this.setState({
+                    isLoggedIn: true,
+                    user,
+                    isAdmin: user.roles.some(role => role.name === UserRole.ADMIN),
+                    isSuperAdmin: user.superUser
+                });
+            }
+        }catch(e){
+            this.logout()
         }
     }
 
