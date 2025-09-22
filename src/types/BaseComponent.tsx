@@ -4,7 +4,8 @@ import type {ResponseType} from "./ResponseType.ts";
 import {API_URL} from "../Consts.ts";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 
-export class BaseComponent<P,S> extends React.PureComponent<P,S>{
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export class BaseComponent<P = {}, S = {}> extends React.PureComponent<P, S> {
     protected async get<T>(url: string, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>> {
         const headers = {
             ...header,

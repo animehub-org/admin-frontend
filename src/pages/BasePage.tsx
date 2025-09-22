@@ -13,8 +13,12 @@ import {BaseComponent} from "../types/BaseComponent.tsx";
 import {NotFoundException} from "../exceptions/NotFoundException.ts";
 import {InternalServerErrorException} from "../exceptions/InternalServerErrorException.ts";
 import {BaseException} from "../exceptions/BaseException.ts";
+import {UserContext} from "../contexts/UserContext.tsx";
 
 abstract class BasePage<P extends BaseProps, S extends BaseState> extends BaseComponent<P, S>{
+    static contextType = UserContext;
+    declare context: React.ContextType<typeof UserContext>;
+
     public constructor(props: P, initialState: S);
     public constructor(initialState: S);
 
@@ -29,6 +33,12 @@ abstract class BasePage<P extends BaseProps, S extends BaseState> extends BaseCo
     }
 
     componentDidMount() {
+        if(this.context.isLoggedIn && !this.context.isAdmin){
+            alert("Not an admin")
+            this.context.logout();
+            //placeholder for the actual url
+            window.location.href = "http://localhost:5173"
+        }
         document.title = `${this.state.title} - Animefoda`
     }
 

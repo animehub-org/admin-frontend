@@ -2,7 +2,13 @@ import React from "react";
 import "../css/header.scss"
 import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faArrowRightToBracket, faMagnifyingGlass, faRightFromBracket, faUser} from "@fortawesome/free-solid-svg-icons";
+import {
+    // faArrowRightToBracket,
+    faMagnifyingGlass,
+    faPlus,
+    // faRightFromBracket,
+    // faUser
+} from "@fortawesome/free-solid-svg-icons";
 import type {UserContext} from "../contexts/UserContext.tsx";
 import {BaseComponent} from "../types/BaseComponent.tsx";
 
@@ -35,7 +41,7 @@ export class Header extends BaseComponent<object,State>{
 
     render(){
         const {searchTerm} = this.state;
-        const {isLoggedIn} = this.context;
+        // const {isLoggedIn} = this.context;
         return(
             <div className="main-header">
                 <nav className="main-header-nav">
@@ -55,11 +61,12 @@ export class Header extends BaseComponent<object,State>{
                             onChange={this.inputChange}
                         />
                         {searchTerm && (
-                            <ul className="search-dropdown">
-                                <li>sdfjna</li>
-                                <li>sdfjna</li>
-                                <li>sdfjna</li>
-                            </ul>
+                            <></>
+                            // <ul className="search-dropdown">
+                            //     <li>sdfjna</li>
+                            //     <li>sdfjna</li>
+                            //     <li>sdfjna</li>
+                            // </ul>
                         )}
                         {/*{searchVisible && (*/}
                         {/*    <>*/}
@@ -80,20 +87,18 @@ export class Header extends BaseComponent<object,State>{
                         <div className="dropdown">
                             <p>Animes</p>
                             <div className="dropdown-content">
-                                <a href="/launch">Lançamentos</a>
-                                <a href="/schedule">Agenda de Lançamentos</a>
+                                <Link to={"/anime/new"}>Novo <FontAwesomeIcon icon={faPlus}/></Link>
                             </div>
                         </div>
-                        <Link to={"/"}>Mangá</Link>
-                        {isLoggedIn ? (
-                            window.location.pathname === "/user"?(
-                                <button onClick={this.handleLogout}><FontAwesomeIcon icon={faRightFromBracket}/></button>
-                            ):(
-                                <Link to={"/user"}><FontAwesomeIcon icon={faUser}/></Link>
-                            )
-                        ): (
-                            <Link to={"/login"}><FontAwesomeIcon icon={faArrowRightToBracket}/></Link>
-                        )}
+                        {/*{isLoggedIn ? (*/}
+                        {/*    window.location.pathname === "/user"?(*/}
+                        {/*        <button onClick={this.handleLogout}><FontAwesomeIcon icon={faRightFromBracket}/></button>*/}
+                        {/*    ):(*/}
+                        {/*        <Link to={"/user"}><FontAwesomeIcon icon={faUser}/></Link>*/}
+                        {/*    )*/}
+                        {/*): (*/}
+                        {/*    <Link to={"/login"}><FontAwesomeIcon icon={faArrowRightToBracket}/></Link>*/}
+                        {/*)}*/}
                     </div>
                 </nav>
             </div>
