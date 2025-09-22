@@ -1,16 +1,23 @@
 import "./css/base.scss"
-import {BrowserRouter as Router} from "react-router-dom"
+import {BrowserRouter as Router, Routes, Route} from "react-router-dom"
+import {UserProvider} from "./contexts/UserContext.tsx";
+import Home from "./pages/Home.tsx";
+import LoginPage from "./pages/LoginPage.tsx";
 
 function App() {
 
-  return (
-    <>
-        <Router>
-
-        </Router>
-
-    </>
-  )
+    return (
+        <>
+            <Router>
+               <UserProvider>
+                   <Routes>
+                       <Route path="/" element={<LoginPage/>}/>
+                       <Route path="/home" element={<Home/>}/>
+                   </Routes>
+               </UserProvider>
+            </Router>
+        </>
+     )
 }
 
 export default App

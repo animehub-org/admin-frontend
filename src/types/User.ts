@@ -9,7 +9,8 @@ export default interface User {
     email: string;
     birthDate: Date;
     roles: Role[];
-    animelist: AnimeUser
+    animelist: AnimeUser,
+    superUser: boolean
 }
 
 export const userAnimeState = {

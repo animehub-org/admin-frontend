@@ -1,3 +1,5 @@
+import type User from "./User.ts";
+
 export type LoginRequest = {
     encryptedInfo: string,
     recaptchaToken: string
@@ -12,5 +14,6 @@ export type SendInfo = {
 export type AuthResponse = {
     accessToken: string,
     refreshToken: string,
-    expiresAt: number,
+    expiresAt: string,
+    user: User
 }

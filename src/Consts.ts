@@ -1,0 +1,4 @@
+export const API_URL = "http://localhost:8082"
+export const CDN_URL = "https://cdn.animefoda.top"
+export const AUTH_URL = "http://localhost:8080"
+export const USER_URL = "http://localhost:8083"

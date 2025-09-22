@@ -3,7 +3,7 @@ import type {BaseException} from "../exceptions/BaseException.ts";
 
 export type BaseState = {
     err: BaseException | null;
-    title?: string,
+    title: string | null,
     loading:boolean,
     status?:string,
 }
