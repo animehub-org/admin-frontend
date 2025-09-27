@@ -1,16 +1,16 @@
 .main-home{
-    padding: 5em;
+    padding: 5em 25em;
     div, main{
         border-radius: 1em;
     }
     main{
-        padding: 2em;
+        padding: 2em 10em;
         background-color: var(--light_blue2);
         display: flex;
         flex-direction: column;
         align-items: center;
         .anime-list{
-            padding: 2em;
+            padding: 2em 5em;
             border: 1px white solid;
             width: 100%
         }

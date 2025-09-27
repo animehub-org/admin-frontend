@@ -1,39 +1,41 @@
-import BasePage from "./BasePage.tsx";
-import type {BaseProps, BaseState} from "../types/PageTypes.ts";
-import React from "react";
 import "../css/newAnimePage.scss"
+import {BaseCreationPage} from "./BaseCreationPage.tsx";
+import type {FormSchema} from "../types/FormOption.ts";
+import type {BaseProps, PageState} from "../types/PageTypes.ts";
 
-type NewAnimePageState = BaseState & {
-
+type AnimeData = {
+    name: string,
+    name2: string,
+    description: string,
 }
 
-class NewAnimePage extends BasePage<BaseProps, NewAnimePageState>{
+const ANIME_FORM_SCHEMA: FormSchema<AnimeData> = {
+    name: { label: "Nome", type:"text" },
+    name2: { label: "Nome alternativo", type:"text" },
+    description: { label: "Descrição", type: "textarea" },
+}
 
+type NewAnimePageState = PageState & {
+    formData: AnimeData;
+};
+
+class NewAnimePage extends BaseCreationPage<AnimeData, typeof ANIME_FORM_SCHEMA, BaseProps> {
     state: NewAnimePageState = {
+        formData: {
+            name: "",
+            name2: "",
+            description: ""
+        },
+        title: "Novo anime",
         err: null,
-        loading: false,
-        title: "Novo anime"
-    };
-    protected renderContent(): React.ReactNode {
-        return (
-            <div className="main-home">
-                <main className="main-new">
-                    <h1>Novo anime</h1>
-                    <div>
-                        <label htmlFor={"name"}>Nome: </label>
-                        <input id={"name"}/>
-                    </div>
-                    <div>
-                        <label htmlFor={"name2"}>Nome 2: </label>
-                        <input id="name2"/>
-                    </div>
-                    <div>
-                        <label>Descrição: </label>
-                        <textarea/>
-                    </div>
-                </main>
-            </div>
-        )
+        loading: false
+    }
+    protected getFormSchema(): typeof ANIME_FORM_SCHEMA {
+        return ANIME_FORM_SCHEMA;
+    }
+
+    protected async handleCreation() {
+        //TODO
     }
 }
 

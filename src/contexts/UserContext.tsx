@@ -4,6 +4,7 @@ import * as React from "react";
 import type {BaseState} from "../types/PageTypes.ts";
 import {UserRole} from "../types/Role.ts";
 import type {AuthResponse} from "../types/LoginTypes.ts";
+import {BaseComponent} from "../types/BaseComponent.tsx";
 
 export interface UserContextProps {
     isLoggedIn: boolean
@@ -30,11 +31,9 @@ export const UserContext = createContext<UserContextProps>({
     logout: ()=>{},
 })
 
-export class UserProvider extends React.PureComponent<{children: ReactNode}, UserContextState>{
+export class UserProvider extends BaseComponent<{children: ReactNode}, UserContextState>{
 
     state: UserContextState = {
-        status: "",
-        title: null,
         isLoggedIn: false,
         isAdmin: false,
         isSuperAdmin: false,
@@ -52,10 +51,11 @@ export class UserProvider extends React.PureComponent<{children: ReactNode}, Use
         try{
             if (accessToken && refreshToken && expiresIn && userStorage) {
                 const user: User = JSON.parse(userStorage);
+                const isAdmin =  user.roles.some(role => role.name === UserRole.ADMIN)
                 this.setState({
                     isLoggedIn: true,
                     user,
-                    isAdmin: user.roles.some(role => role.name === UserRole.ADMIN),
+                    isAdmin,
                     isSuperAdmin: user.superUser
                 });
             }
@@ -84,12 +84,15 @@ export class UserProvider extends React.PureComponent<{children: ReactNode}, Use
         });
     };
 
-    public logout = () => {
+    public logout = async () => {
         // Remove os tokens e limpa o localStorage
+        const res = await this.postToAuth("/user/p/logout",null)
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         localStorage.removeItem("expiresIn");
         localStorage.removeItem("user");
+
+        console.log(res?.data.message);
 
         // Atualiza o estado para deslogado
         this.setState({

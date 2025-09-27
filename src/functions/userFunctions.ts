@@ -52,3 +52,7 @@ export async function fetchPost(path: string, method: "POST" | "DELETE" | "PATCH
 export function userHasRole(user: User, role: UserRole): boolean {
     return user.roles.some(r => r.name === role);
 }
+
+export function typedEntries<T extends object>(obj: T): [keyof T, T[keyof T]][] {
+    return Object.entries(obj) as [keyof T, T[keyof T]][];
+}

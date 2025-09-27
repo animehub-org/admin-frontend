@@ -3,36 +3,34 @@ import "../css/header.scss"
 import {Link} from "react-router-dom";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {
-    // faArrowRightToBracket,
+    faArrowRightToBracket,
     faMagnifyingGlass,
     faPlus,
-    // faRightFromBracket,
+    faRightFromBracket,
     // faUser
 } from "@fortawesome/free-solid-svg-icons";
-import type {UserContext} from "../contexts/UserContext.tsx";
+import {UserContext} from "../contexts/UserContext.tsx";
 import {BaseComponent} from "../types/BaseComponent.tsx";
+import type {BaseState} from "../types/PageTypes.ts";
 
-type State = {
+type State = BaseState & {
     searchTerm: string
 }
 
 export class Header extends BaseComponent<object,State>{
-    
+
+    static contextType = UserContext;
     declare context: React.ContextType<typeof UserContext>;
 
     state:State = {
+        loading: false,
+        err: null,
         searchTerm:""
     }
 
     handleLogout = async () => {
-        const res = await this.postToApiWithToken("/user/p/logout",{})
-        if(res.status !== 200){
-            alert("Erro: "+res.data.message);
-        }
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
+        this.context.logout();
         window.location.href="/";
-        
     }
     
     inputChange=(e: React.ChangeEvent<HTMLInputElement>)=>{
@@ -41,11 +39,11 @@ export class Header extends BaseComponent<object,State>{
 
     render(){
         const {searchTerm} = this.state;
-        // const {isLoggedIn} = this.context;
+        const {isLoggedIn} = this.context;
         return(
             <div className="main-header">
                 <nav className="main-header-nav">
-                    <Link to="/">
+                    <Link to={isLoggedIn ? "/home" : "/"}>
                         <h1>Animefoda</h1>
                     </Link>
                     <div className="search-container">
@@ -90,6 +88,11 @@ export class Header extends BaseComponent<object,State>{
                                 <Link to={"/anime/new"}>Novo <FontAwesomeIcon icon={faPlus}/></Link>
                             </div>
                         </div>
+                        {isLoggedIn ? (
+                            <button onClick={this.handleLogout}><FontAwesomeIcon icon={faRightFromBracket}/></button>
+                        ): (
+                            <Link to={"/"}><FontAwesomeIcon icon={faArrowRightToBracket}/></Link>
+                        )}
                         {/*{isLoggedIn ? (*/}
                         {/*    window.location.pathname === "/user"?(*/}
                         {/*        <button onClick={this.handleLogout}><FontAwesomeIcon icon={faRightFromBracket}/></button>*/}

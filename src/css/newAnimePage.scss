@@ -1,7 +1,7 @@
 .main-new{
     div {
         display: flex;
-        justify-content: space-around;
+        justify-content: space-between;
         align-items: center;
         width: 100%;
         margin: 1em auto
@@ -12,5 +12,15 @@
     input, textarea {
         border-radius: .5em;
         padding: .2em;
+    }
+    button {
+        background: none;
+        border: 1px solid white;
+        border-radius: .5em;
+        padding: .2em;
+        transition: .2s all;
+        &:hover{
+            background-color: var(--light_blue);
+        }
     }
 }

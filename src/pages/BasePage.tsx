@@ -1,21 +1,20 @@
 import React from "react";
-import axios, {type AxiosError, type AxiosResponse} from "axios";
+import axios, { type AxiosResponse} from "axios";
 import type {Anime} from "../types/Anime.ts";
 import "../css/base.scss"
 import Footer from "../components/Footer.tsx";
 import {Header} from "../components/Header.tsx";
-import type {BaseProps, BaseState} from "../types/PageTypes.ts";
+import type {BaseProps, PageState} from "../types/PageTypes.ts";
 import {ErrorCode, type ResponseType} from "../types/ResponseType.ts";
-import {AUTH_URL, USER_URL} from "../Consts.ts";
+import {USER_URL} from "../Consts.ts";
 import {EncryptException} from "../exceptions/EncryptException.ts";
 import {JSEncrypt} from "jsencrypt";
 import {BaseComponent} from "../types/BaseComponent.tsx";
 import {NotFoundException} from "../exceptions/NotFoundException.ts";
-import {InternalServerErrorException} from "../exceptions/InternalServerErrorException.ts";
 import {BaseException} from "../exceptions/BaseException.ts";
 import {UserContext} from "../contexts/UserContext.tsx";
 
-abstract class BasePage<P extends BaseProps, S extends BaseState> extends BaseComponent<P, S>{
+abstract class BasePage<P extends BaseProps, S extends PageState> extends BaseComponent<P, S>{
     static contextType = UserContext;
     declare context: React.ContextType<typeof UserContext>;
 
@@ -42,32 +41,7 @@ abstract class BasePage<P extends BaseProps, S extends BaseState> extends BaseCo
         document.title = `${this.state.title} - Animefoda`
     }
 
-    private handleError(error: unknown){
-        if (axios.isAxiosError(error)) {
-            const apiError = error as AxiosError<ResponseType<string>>;
-            if (apiError.response && apiError.response.data) {
-                const errData = apiError.response.data;
-                throw new BaseException(errData.errorCode,errData.message,errData.errorCode);
-            } else {
-                throw new InternalServerErrorException(error.message);
-            }
-        } else {
-            throw new InternalServerErrorException("An unknown error occurred.");
-        }
-    }
 
-    protected async executeAsync<T>(task: () => Promise<T>): Promise<T | null> {
-        this.setState({ loading: true });
-        try {
-            const result = await task();
-            this.setState({ err: null, loading: false });
-            return result;
-        } catch (error:unknown) {
-            const exception = this.handleError(error);
-            this.setState({err: exception, loading: false} as unknown as Pick<S, "err" | "loading">);
-            return null;
-        }
-    }
 
     protected getError(err: BaseException|null){
         if (!err) {
@@ -89,22 +63,6 @@ abstract class BasePage<P extends BaseProps, S extends BaseState> extends BaseCo
                 )}
             </div>
         );
-    }
-
-    protected async getFromAuth<T>(url: string): Promise<AxiosResponse<ResponseType<T>>|null>{
-        return this.executeAsync(async()=>{
-            return await this.get<T>(`${AUTH_URL}/g${url}`)
-        })
-    }
-    protected async postToAuth<T,D>(url:string, data:D): Promise<AxiosResponse<ResponseType<T>>|null>{
-        return this.executeAsync(async()=>{
-            const fingerprint = await this.getFingerprint();
-            const headers = {
-                "FP": fingerprint.visitorId,
-            }
-            return await this.post<T,D>(`${AUTH_URL}${url}`, data,headers)
-        })
-
     }
 
 
