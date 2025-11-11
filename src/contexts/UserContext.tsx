@@ -11,7 +11,7 @@ export interface UserContextProps {
     isAdmin: boolean
     isSuperAdmin: boolean
     user: User | null;
-    login: (response: AuthResponse) => void;
+    login: (response: AuthResponse) => Promise<void>;
     logout: () => void;
 }
 
@@ -27,7 +27,7 @@ export const UserContext = createContext<UserContextProps>({
     isAdmin: false,
     isSuperAdmin: false,
     user: null,
-    login: ()=>{},
+    login: async ()=>{},
     logout: ()=>{},
 })
 
@@ -42,41 +42,39 @@ export class UserProvider extends BaseComponent<{children: ReactNode}, UserConte
         loading: true
     }
 
-    private checkLoginStatus = () => {
+    private checkLoginStatus = async () => {
         const accessToken = localStorage.getItem("accessToken");
         const refreshToken = localStorage.getItem("refreshToken");
         const expiresIn = localStorage.getItem("expiresIn");
-        const userStorage = localStorage.getItem("user")
+        // const userStorage = localStorage.getItem("user")
 
         try{
-            if (accessToken && refreshToken && expiresIn && userStorage) {
-                const user: User = JSON.parse(userStorage);
-                const isAdmin =  user.roles.some(role => role.name === UserRole.ADMIN)
-                this.setState({
-                    isLoggedIn: true,
-                    user,
-                    isAdmin,
-                    isSuperAdmin: user.superUser
-                });
+            if (accessToken && refreshToken && expiresIn) {
+                const response = await this.getFromAuth<boolean>(`/validate/${UserRole.ADMIN}`)
+                if(!response?.data.data){
+                    alert("Not Admin")
+                    return;
+                }
+                this.setState({isLoggedIn: true, isAdmin: true})
             }
         }catch(e){
             this.logout()
         }
     }
 
-    public login = (response: AuthResponse) => {
+    public login = async (response: AuthResponse) => {
         // Salva os tokens no localStorage
         localStorage.setItem("accessToken", response.accessToken);
         localStorage.setItem("refreshToken", response.refreshToken);
         localStorage.setItem("expiresIn", response.expiresAt);
-        localStorage.setItem("user", JSON.stringify(response.user));
+        // localStorage.setItem("user", JSON.stringify(response.user));
 
         // Verifica os papéis do usuário
         const isAdmin = response.user.roles.some(role => role.name === UserRole.ADMIN);
         const isSuperAdmin = response.user.superUser
 
         // Atualiza o estado
-        this.setState({
+        await this.setState({
             isLoggedIn: true,
             user: response.user,
             isAdmin,

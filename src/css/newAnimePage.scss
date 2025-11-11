@@ -1,18 +1,4 @@
 .main-new{
-    div {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-        margin: 1em auto
-    }
-    label {
-        color: white;
-    }
-    input, textarea {
-        border-radius: .5em;
-        padding: .2em;
-    }
     button {
         background: none;
         border: 1px solid white;
@@ -21,6 +7,41 @@
         transition: .2s all;
         &:hover{
             background-color: var(--light_blue);
+        }
+    }
+    .section{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin: 1em auto;
+        
+        input, textarea {
+            border-radius: .5em;
+            padding: .2em;
+        }
+        
+        label{
+            color: white;
+        }
+        .array-creation{
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            div:first-child{
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                select{
+                    max-width: 50%;
+                    color: black;
+                }
+            }
+            .selected-itens{
+                padding: 1em;
+                border-radius: .5em;
+                border: 1px solid white;
+            }
         }
     }
 }

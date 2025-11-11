@@ -1,5 +1,5 @@
 import BasePage from "./BasePage.tsx";
-import type {BaseProps, BaseState} from "../types/PageTypes.ts";
+import type {BaseProps, PageState} from "../types/PageTypes.ts";
 import ReCAPTCHA from "react-google-recaptcha";
 import "../css/loginPage.scss"
 import {BaseException} from "../exceptions/BaseException.ts";
@@ -9,7 +9,7 @@ import type {AuthResponse, LoginRequest, SendInfo} from "../types/LoginTypes.ts"
 import {UserContext} from "../contexts/UserContext.tsx";
 import React from "react";
 
-type LoginPageState = BaseState & {
+type LoginPageState = PageState & {
     recaptchaValue: string | null;
     loginValue: string | null;
     password: string | null;
@@ -24,7 +24,6 @@ class LoginPage extends BasePage<BaseProps, LoginPageState>{
         err: null,
         title: "Login",
         loading: false,
-        status: "",
         recaptchaValue: null,
         loginValue: null,
         password: null,
@@ -59,13 +58,11 @@ class LoginPage extends BasePage<BaseProps, LoginPageState>{
 
             if(response){
                 if(this.context && this.context.login){
-                    this.context.login(
-                        response.data.data
-                    );
+                    await this.context.login(response.data.data);
+                    window.location.href = "/home";
                 }else{
                     throw new BaseException("UNKNOWN_ERROR", "Context login function not available")
                 }
-                window.location.href = "/home";
             }
         }catch(error: unknown){
             if(error instanceof BaseException){

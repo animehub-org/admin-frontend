@@ -1,17 +1,18 @@
 import React from "react";
 import axios, {type AxiosError, type AxiosResponse} from "axios";
 import type {ResponseType} from "./ResponseType.ts";
-import {API_URL, AUTH_URL} from "../Consts.ts";
+import {API_URL, AUTH_URL, GATEWAY_URL} from "../Consts.ts";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import type {BaseState} from "./PageTypes.ts";
 import {BaseException} from "../exceptions/BaseException.ts";
 import {InternalServerErrorException} from "../exceptions/InternalServerErrorException.ts";
 
-export class BaseComponent<P = {}, S extends BaseState = BaseState> extends React.PureComponent<P, S> {
+export class BaseComponent<P = object, S extends BaseState = BaseState> extends React.PureComponent<P, S> {
 
     protected async get<T>(url: string, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>> {
         const headers = {
             ...header,
+            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
         }
         return await axios.get<ResponseType<T>>(url, {headers})
     }
@@ -19,6 +20,7 @@ export class BaseComponent<P = {}, S extends BaseState = BaseState> extends Reac
     protected async post<T, D>(url: string, data: D, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>> {
         const headers = {
             "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("accessToken")}`,
             ...header,
         }
         return await axios.post(url, data, {headers: headers})
@@ -65,20 +67,47 @@ export class BaseComponent<P = {}, S extends BaseState = BaseState> extends Reac
         })
 
     }
+    protected async getFromAdminApi<T>(url: string, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>|null> {
+        return this.executeAsync(async()=>{
+            const fingerprint = await this.getFingerprint();
+            const headers = {
+                ...header,
+                "FP": fingerprint.visitorId,
+            }
+            return this.get<T>(`${GATEWAY_URL}/api/admin/${url}`, headers)
+        })
+        // return await this.getFromApiWithToken<T>(`${ADMIN_URL}/g${url}`, header)
+    }
 
-    protected async getFromApi<T>(url: string, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>> {
-        return await this.get<T>(`${API_URL}/g${url}`, header)
+    protected async postToAdminApi<T,D>(url:string, data: D, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>|null> {
+        return this.executeAsync(async()=>{
+            const fingerprint = await this.getFingerprint();
+            const headers = {
+                ...header,
+                "FP": fingerprint.visitorId,
+            }
+            return this.post<T,D>(`${GATEWAY_URL}/api/admin/${url}`, data,headers)
+        })
+        // return await this.postToApiWithToken(`${ADMIN_URL}/p${url}`, data, headers)
+    }
+
+
+    protected async getFromApi<T>(url: string, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>|null> {
+        return this.executeAsync(async()=>{
+            return this.get<T>(`${API_URL}${url}`, header)
+        })
+        // return await this.get<T>(`${API_URL}/g${url}`, header)
     }
 
     protected async postToApi<T,D>(url:string, data: D, headers: object | null = null): Promise<AxiosResponse<ResponseType<T>>> {
         return await this.post(`${API_URL}/p${url}`, data, headers)
     }
 
-    protected async getFromApiWithToken<T>(url: string, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>> {
+    protected async getFromApiWithToken<T>(url: string, header: object | null = null): Promise<AxiosResponse<ResponseType<T>>|null> {
         const fingerprint = await this.getFingerprint();
         const headers = {
             ...header,
-            "Authorization": `Bearer ${header}`,
+            // "Authorization": `Bearer ${header}`,
             "FP": fingerprint.visitorId
         }
         return await this.getFromApi(url, headers);
@@ -88,7 +117,7 @@ export class BaseComponent<P = {}, S extends BaseState = BaseState> extends Reac
         const fingerprint = await this.getFingerprint();
         const headers = {
             ...header,
-            "Authorization": `Bearer ${header}`,
+            // "Authorization": `Bearer ${header}`,
             "FP": fingerprint.visitorId
         }
         return await this.postToApi<T, D>(url, data, headers)

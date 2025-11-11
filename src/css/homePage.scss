@@ -1,10 +1,14 @@
 .main-home{
-    padding: 5em 25em;
+    padding: 5em 20em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    
     div, main{
         border-radius: 1em;
     }
-    main{
-        padding: 2em 10em;
+    main, .main{
+        padding: 2em 2em;
         background-color: var(--light_blue2);
         display: flex;
         flex-direction: column;
@@ -13,6 +17,48 @@
             padding: 2em 5em;
             border: 1px white solid;
             width: 100%
+        }
+        margin-bottom: 1em;
+        
+        .title{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            row-gap: 2em;
+            margin-bottom: 1em;
+            *{
+                margin: 0 1em;
+            }
+            .new-button{
+                padding: 1em;
+                background-color: var(--purple);
+                border-radius: 1em;
+                transition: all .2s;
+                text-decoration: none;
+                &:hover{
+                    background-color: var(--dark_purple);
+                }
+            }
+        }
+        
+        .division{
+            display: flex;
+            a{
+                background-color: var(--purple);
+                margin: 0 1em;
+                padding: 1em;
+                border-radius: 1em;
+                text-decoration: none;
+                align-items: center;
+                display: flex;
+                justify-content: center;
+                transition: background-color 0.2s;
+                
+                &:hover{
+                    background-color: var(--dark_purple);
+                }
+            }
         }
     }
 }

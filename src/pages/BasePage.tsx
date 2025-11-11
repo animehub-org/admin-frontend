@@ -34,9 +34,9 @@ abstract class BasePage<P extends BaseProps, S extends PageState> extends BaseCo
     componentDidMount() {
         if(this.context.isLoggedIn && !this.context.isAdmin){
             alert("Not an admin")
-            this.context.logout();
+            // this.context.logout();
             //placeholder for the actual url
-            window.location.href = "http://localhost:5173"
+            // window.location.href = "http://localhost:5173"
         }
         document.title = `${this.state.title} - Animefoda`
     }
@@ -112,7 +112,7 @@ abstract class BasePage<P extends BaseProps, S extends PageState> extends BaseCo
 
     protected async getAnime(id:string):Promise<Anime|null>{
         try {
-            return (await this.getFromApi<Anime|null>(`/anime/${id}`, null)).data.data;
+            return (await this.getFromApi<Anime|null>(`/anime/${id}`, null))!.data.data;
         } catch (error: unknown) {
             console.log(error);
             if(error instanceof BaseException){

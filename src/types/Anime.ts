@@ -4,6 +4,7 @@ import type {Audio} from "./Audio.ts";
 import type {Quality} from "./Quality.ts";
 import type {Priority, userAnimeState} from "./User.ts";
 import type {SeasonDTO} from "./Season.ts";
+import type {Genre} from "./Genre.ts";
 
 export interface Anime{
     id:string;
@@ -17,7 +18,7 @@ export interface Anime{
     studios:Producer[];
     producers:Producer[];
     creators:Producer[];
-    genre:string[];
+    genre:Genre[];
     rating?:number;
     averageEpTime?:number;
     date_added?:Date;
