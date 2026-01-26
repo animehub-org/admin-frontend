@@ -1,13 +1,12 @@
 import BasePage from "./BasePage.tsx";
-import type {BaseProps, PageState} from "../types/PageTypes.ts";
+import type { BaseProps, PageState } from "../types/PageTypes.ts";
 import ReCAPTCHA from "react-google-recaptcha";
 import "../css/loginPage.scss"
-import {BaseException} from "../exceptions/BaseException.ts";
-import {ErrorCode} from "../types/ResponseType.ts";
-import {UserException} from "../exceptions/UserException.ts";
-import type {AuthResponse, LoginRequest, SendInfo} from "../types/LoginTypes.ts";
-import {UserContext} from "../contexts/UserContext.tsx";
+import { BaseException } from "../exceptions/BaseException.ts";
+import { ErrorCode } from "../types/ResponseType.ts";
+import { UserException } from "../exceptions/UserException.ts";
 import React from "react";
+import AuthService from "../services/AuthService.ts";
 
 type LoginPageState = PageState & {
     recaptchaValue: string | null;
@@ -15,10 +14,7 @@ type LoginPageState = PageState & {
     password: string | null;
 }
 
-class LoginPage extends BasePage<BaseProps, LoginPageState>{
-
-    static contextType = UserContext;
-    declare context: React.ContextType<typeof UserContext>
+class LoginPage extends BasePage<BaseProps, LoginPageState> {
 
     state: LoginPageState = {
         err: null,
@@ -29,89 +25,117 @@ class LoginPage extends BasePage<BaseProps, LoginPageState>{
         password: null,
     };
 
-    private async login(){
-        try{
-            if(!this.state.recaptchaValue){
-                throw new UserException("ReCAPTCHA not done");
-            }
-            if(!this.state.loginValue){
-                throw new UserException("Invalid email address or username")
-            }
-            if(!this.state.password){
-                throw new UserException("Invalid password")
+    private login = async (): Promise<void> => {
+        // Validações
+        if (!this.state.recaptchaValue) {
+            this.setState({ err: new UserException("ReCAPTCHA not done") });
+            return;
+        }
+        if (!this.state.loginValue) {
+            this.setState({ err: new UserException("Invalid email address or username") });
+            return;
+        }
+        if (!this.state.password) {
+            this.setState({ err: new UserException("Invalid password") });
+            return;
+        }
+
+        this.setState({ loading: true, err: null });
+
+        try {
+            console.log("Iniciando login OAuth2...");
+            console.log("Endpoint:", `http://localhost:8080/oauth2/token`);
+
+            // Chama diretamente o AuthService (OAuth2)
+            const tokenResponse = await AuthService.login(
+                this.state.loginValue,
+                this.state.password
+            );
+
+            console.log("Login bem sucedido!", tokenResponse);
+            console.log("Access Token salvo:", AuthService.getAccessToken());
+
+            // Verifica se tem role de admin
+            const hasAdminRole = AuthService.hasRole("ROLE_ADMIN");
+            console.log("Has admin role:", hasAdminRole);
+
+            if (!hasAdminRole) {
+                AuthService.logout();
+                throw new Error("Você não tem permissão de administrador");
             }
 
-            const userInformation: SendInfo = {
-                loginValue: this.state.loginValue,
-                password: this.state.password,
-                fingerprint: (await this.getFingerprint()).visitorId
-            }
+            // Redireciona para home
+            window.location.href = "/home";
 
-            const encrypted = await this.encryptData<SendInfo>(userInformation)
+        } catch (error: unknown) {
+            console.error("Erro no login:", error);
 
-            const data:LoginRequest = {
-                encryptedInfo: encrypted,
-                recaptchaToken: this.state.recaptchaValue,
-            }
-
-            const response = await this.postToAuth<AuthResponse, LoginRequest>("/login", data)
-
-            if(response){
-                if(this.context && this.context.login){
-                    await this.context.login(response.data.data);
-                    window.location.href = "/home";
-                }else{
-                    throw new BaseException("UNKNOWN_ERROR", "Context login function not available")
-                }
-            }
-        }catch(error: unknown){
-            if(error instanceof BaseException){
-                this.setState({
-                    err:error
-                })
-            }else{
+            if (error instanceof BaseException) {
+                this.setState({ err: error });
+            } else {
                 this.setState({
                     err: new BaseException(
                         ErrorCode.UNKNOWN_ERROR,
                         (error as Error).message || "An unknown error occurred"
                     )
-                })
+                });
             }
-        }finally {
+        } finally {
             this.setState({
-                recaptchaValue: null
-            })
+                recaptchaValue: null,
+                loading: false
+            });
         }
-    }
+    };
+
+    private handleLoginClick = (e: React.MouseEvent<HTMLButtonElement>): void => {
+        e.preventDefault();
+        this.login();
+    };
 
     protected renderContent() {
         const recaptchaKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
         return (
             <main className="main-login">
                 <h1>Login Admin</h1>
+
+                {/* Mostra erro se houver */}
+                {this.state.err && (
+                    <div className="error-message" style={{ color: 'red', marginBottom: '1rem', padding: '10px', border: '1px solid red', borderRadius: '4px' }}>
+                        {this.state.err.message}
+                    </div>
+                )}
+
                 <div>
                     <label htmlFor={"email"}>E-mail/Username</label>
                     <input
-                        onChange={(e)=>this.setState({loginValue: e.currentTarget.value})}
+                        onChange={(e) => this.setState({ loginValue: e.currentTarget.value })}
                         type="text"
                         name={"email"}
+                        disabled={this.state.loading}
                     />
                 </div>
                 <div>
                     <label htmlFor={"password"}>Senha</label>
                     <input
-                        onChange={(e)=>this.setState({password: e.currentTarget.value})}
+                        onChange={(e) => this.setState({ password: e.currentTarget.value })}
                         type="password"
                         name={"password"}
+                        disabled={this.state.loading}
                     />
                 </div>
-                {/*<div className="captcha-container"/>*/}
                 <ReCAPTCHA
                     className="recaptcha"
-                    onChange={(e)=>this.setState({recaptchaValue: e})}
+                    onChange={(e) => this.setState({ recaptchaValue: e })}
                     sitekey={recaptchaKey}
                 />
-                <button onClick={()=> this.login()} className="login-button">Entrar</button>
+                <button
+                    onClick={this.handleLoginClick}
+                    className="login-button"
+                    disabled={this.state.loading}
+                >
+                    {this.state.loading ? "Entrando..." : "Entrar"}
+                </button>
             </main>
         );
     }

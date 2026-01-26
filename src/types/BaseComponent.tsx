@@ -1,7 +1,7 @@
 import React from "react";
 import axios, {type AxiosError, type AxiosResponse} from "axios";
 import type {ResponseType} from "./ResponseType.ts";
-import {API_URL, AUTH_URL, GATEWAY_URL} from "../Consts.ts";
+import {ADMIN_URL, API_URL, AUTH_URL} from "../Consts.ts";
 import FingerprintJS from "@fingerprintjs/fingerprintjs";
 import type {BaseState} from "./PageTypes.ts";
 import {BaseException} from "../exceptions/BaseException.ts";
@@ -74,7 +74,7 @@ export class BaseComponent<P = object, S extends BaseState = BaseState> extends 
                 ...header,
                 "FP": fingerprint.visitorId,
             }
-            return this.get<T>(`${GATEWAY_URL}/api/admin/${url}`, headers)
+            return this.get<T>(`${ADMIN_URL}${url}`, headers)
         })
         // return await this.getFromApiWithToken<T>(`${ADMIN_URL}/g${url}`, header)
     }
@@ -86,7 +86,7 @@ export class BaseComponent<P = object, S extends BaseState = BaseState> extends 
                 ...header,
                 "FP": fingerprint.visitorId,
             }
-            return this.post<T,D>(`${GATEWAY_URL}/api/admin/${url}`, data,headers)
+            return this.post<T,D>(`${ADMIN_URL}${url}`, data,headers)
         })
         // return await this.postToApiWithToken(`${ADMIN_URL}/p${url}`, data, headers)
     }

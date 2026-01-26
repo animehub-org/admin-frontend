@@ -1,0 +1,163 @@
+.form-wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 2em;
+    /* Increased padding */
+    background-color: var(--dark_purple);
+    /* Added background */
+    border-radius: 10px;
+    /* Rounded corners */
+    margin: 2em auto;
+    /* Center horizontally and add vertical margin */
+    max-width: 900px;
+    /* Limit width of the card itself */
+    width: 95%;
+    /* Responsive width */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    /* Subtle shadow */
+
+    .form-header {
+        display: flex;
+        justify-content: center;
+        /* Center the title */
+        align-items: center;
+        margin-bottom: 2em;
+
+        /* Box Style */
+        border: 2px solid var(--border_purple);
+        border-radius: 15px;
+        padding: 1.5em;
+        background-color: rgba(0, 0, 0, 0.2);
+        /* Slight dark overlay */
+
+        .header-actions {
+            border: none;
+            display: flex;
+            align-items: center;
+            padding: 0;
+            margin-left: 1em;
+            position: absolute;
+            /* Position actions (like delete) */
+            right: 3em;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin: 0;
+            text-align: center;
+        }
+    }
+
+    .fields {
+        flex-direction: column;
+        display: flex;
+        align-self: center;
+        /* Center the fields column */
+        width: 100%;
+        max-width: 500px;
+        /* Constrain width for the boxed look */
+
+        .section {
+            display: flex;
+            align-items: center;
+            /* Box Style */
+            border: 2px solid var(--border_purple);
+            border-radius: 15px;
+            padding: 1em;
+            /* Padding inside the box */
+            margin-bottom: 1em;
+            background-color: rgba(0, 0, 0, 0.2);
+
+            gap: 1em;
+
+            label {
+                font-weight: bold;
+                width: auto;
+                min-width: 80px;
+                text-align: left;
+                margin-right: 0;
+            }
+
+            input,
+            textarea,
+            select {
+                padding: 0.5em;
+                border-radius: 5px;
+                border: none;
+                /* Remove inner input border if looking for clean look, or keep */
+                background-color: var(--white);
+                /* White input background as per image example */
+                color: black;
+                /* Black text for white background */
+                flex-grow: 1;
+                width: 100%;
+            }
+            
+            option {
+                color: black;
+            }
+
+            .image-upload-field {
+                margin: 0;
+                border: none;
+                display: flex;
+                flex-direction: column-reverse;
+                gap: 1rem;
+                align-items: flex-start;
+                /* Reset to start or center depending on preference */
+
+                .image-preview {
+                    margin: 0;
+                    padding: 0;
+                    overflow: hidden;
+                    width: max-content;
+
+                    img {
+                        max-width: 15em;
+                        object-fit: cover;
+                        border-radius: 8px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.btn {
+    text-decoration: none;
+    transition: .2s ease-in-out;
+    padding: .5em 1em;
+    width: max-content;
+    height: max-content;
+    color: white;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1em;
+
+    &.create,
+    &[type='submit'] {
+        /* Added selector for submit buttons */
+        background-color: var(--purple);
+
+        /* Use local var */
+        &:hover {
+            background-color: var(--dark_purple);
+        }
+
+        &:disabled {
+            background-color: gray;
+            cursor: not-allowed;
+        }
+    }
+
+    &.remove {
+        background-color: var(--red);
+
+        &:hover {
+            opacity: 0.8;
+            // background-color: var(--dark_red); 
+        }
+    }
+}

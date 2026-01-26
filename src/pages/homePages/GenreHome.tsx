@@ -1,49 +1,41 @@
-import BasePage from "../BasePage.tsx";
-import type {BaseProps, PageState} from "../../types/PageTypes.ts";
-import type {Genre} from "../../types/Genre.ts";
+import { BaseHomePage, type BaseHomeState } from "../BaseHomePage.tsx";
+import type { BaseProps } from "../../types/PageTypes.ts";
+import type { Genre } from "../../types/Genre.ts";
 import HomeListComponent from "../../components/HomeListComponent.tsx";
-import {Link} from "react-router-dom";
+import React from "react";
 
-type GenreHomeState = PageState & {
-    genres: Genre[]
-}
+type GenreHomeState = BaseHomeState<Genre>;
 
-class GenreHomePage extends BasePage<BaseProps, GenreHomeState>{
+class GenreHomePage extends BaseHomePage<BaseProps, GenreHomeState, Genre> {
 
-    state: GenreHomeState = {
-        loading: false,
-        err: null,
-        title:"Gêneros",
-        genres: [],
-    };
-
-    async componentDidMount() {
-        super.componentDidMount();
-        const result = await this.getFromApi<Genre[]>("/g/genre/all")
-        if(result !== null){
-            this.setState({
-                genres: result.data.data
-            })
-        }
+    constructor(props: BaseProps) {
+        super(props, {
+            loading: false,
+            err: null,
+            title: "Gêneros",
+            items: []
+        });
     }
 
-    protected renderContent(): React.ReactNode {
-        return (<div className="main-home">
-            <main>
-                <div className={"title"}>
-                    <h1>Gêneros</h1>
-                    <Link className="new-button" to="/genre/new">Novo Gênero</Link>
-                </div>
-
-                <div className="anime-list">
-                    {this.state.genres.map((genre: Genre) => (
-                        <HomeListComponent type={genre}/>
-                    ))}
-                </div>
-            </main>
-        </div>)
+    protected getApiUrl(): string {
+        return "/g/genre/all";
     }
 
+    protected getPageTitle(): string {
+        return "Gêneros";
+    }
+
+    protected getNewPath(): string {
+        return "/genre/new";
+    }
+
+    protected getNewLabel(): string {
+        return "Novo Gênero";
+    }
+
+    protected renderItem(item: Genre): React.ReactNode {
+        return <HomeListComponent type={item} key={item.id} />; // Added key for React list
+    }
 }
 
 export default GenreHomePage;

@@ -19,7 +19,7 @@ class Home extends BasePage<BaseProps, HomePageState>{
     }
 
     async componentDidMount() {
-        const res = await this.getFromApiWithToken<AnimeSummary[]>("/anime/all?summary=true&page=1")
+        const res = await this.getFromApiWithToken<AnimeSummary[]>("/g/anime/all?summary=true&page=1")
         if(res?.data.success){
             this.setState({animes: res.data.data})
         }

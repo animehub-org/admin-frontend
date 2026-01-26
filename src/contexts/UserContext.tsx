@@ -1,17 +1,19 @@
 import type User from "../types/User.ts";
-import {createContext, type ReactNode} from "react";
+import { createContext, type ReactNode } from "react";
 import * as React from "react";
-import type {BaseState} from "../types/PageTypes.ts";
-import {UserRole} from "../types/Role.ts";
-import type {AuthResponse} from "../types/LoginTypes.ts";
-import {BaseComponent} from "../types/BaseComponent.tsx";
+import type { BaseState } from "../types/PageTypes.ts";
+import { UserRole } from "../types/Role.ts";
+import { BaseComponent } from "../types/BaseComponent.tsx";
+import AuthService from "../services/AuthService.ts";
+import { USER_URL } from "../Consts.ts";
+import axios from "axios";
 
 export interface UserContextProps {
     isLoggedIn: boolean
     isAdmin: boolean
     isSuperAdmin: boolean
     user: User | null;
-    login: (response: AuthResponse) => Promise<void>;
+    login: (username: string, password: string) => Promise<void>;
     logout: () => void;
 }
 
@@ -27,11 +29,11 @@ export const UserContext = createContext<UserContextProps>({
     isAdmin: false,
     isSuperAdmin: false,
     user: null,
-    login: async ()=>{},
-    logout: ()=>{},
+    login: async () => { },
+    logout: () => { },
 })
 
-export class UserProvider extends BaseComponent<{children: ReactNode}, UserContextState>{
+export class UserProvider extends BaseComponent<{ children: ReactNode }, UserContextState> {
 
     state: UserContextState = {
         isLoggedIn: false,
@@ -43,56 +45,99 @@ export class UserProvider extends BaseComponent<{children: ReactNode}, UserConte
     }
 
     private checkLoginStatus = async () => {
-        const accessToken = localStorage.getItem("accessToken");
-        const refreshToken = localStorage.getItem("refreshToken");
-        const expiresIn = localStorage.getItem("expiresIn");
-        // const userStorage = localStorage.getItem("user")
-
-        try{
-            if (accessToken && refreshToken && expiresIn) {
-                const response = await this.getFromAuth<boolean>(`/validate/${UserRole.ADMIN}`)
-                if(!response?.data.data){
-                    alert("Not Admin")
+        try {
+            // Verifica se há token válido
+            if (!AuthService.isLoggedIn()) {
+                // Tenta refresh token
+                const refreshed = await AuthService.refreshToken();
+                if (!refreshed) {
+                    this.setState({ loading: false });
                     return;
                 }
-                this.setState({isLoggedIn: true, isAdmin: true})
             }
-        }catch(e){
-            this.logout()
+
+            // Verifica se tem role de admin no token
+            const hasAdminRole = AuthService.hasRole(UserRole.ADMIN);
+            if (!hasAdminRole) {
+                alert("Você não tem permissão de administrador");
+                AuthService.logout();
+                this.setState({ loading: false });
+                return;
+            }
+
+            // Busca dados completos do usuário na API
+            const user = await this.fetchUserData();
+            if (user) {
+                this.setState({
+                    isLoggedIn: true,
+                    isAdmin: true,
+                    isSuperAdmin: user.superUser,
+                    user,
+                    loading: false
+                });
+            } else {
+                this.setState({ loading: false });
+            }
+        } catch (e) {
+            console.error("Error checking login status:", e);
+            AuthService.logout();
+            this.setState({ loading: false });
         }
     }
 
-    public login = async (response: AuthResponse) => {
-        // Salva os tokens no localStorage
-        localStorage.setItem("accessToken", response.accessToken);
-        localStorage.setItem("refreshToken", response.refreshToken);
-        localStorage.setItem("expiresIn", response.expiresAt);
-        // localStorage.setItem("user", JSON.stringify(response.user));
+    private fetchUserData = async (): Promise<User | null> => {
+        try {
+            const accessToken = AuthService.getAccessToken();
+            if (!accessToken) return null;
 
-        // Verifica os papéis do usuário
-        const isAdmin = response.user.roles.some(role => role.name === UserRole.ADMIN);
-        const isSuperAdmin = response.user.superUser
+            const response = await axios.get<{ data: User }>(`${USER_URL}/me`, {
+                headers: {
+                    "Authorization": `Bearer ${accessToken}`
+                }
+            });
+            return response.data.data;
+        } catch (e) {
+            console.error("Error fetching user data:", e);
+            return null;
+        }
+    }
 
-        // Atualiza o estado
-        await this.setState({
-            isLoggedIn: true,
-            user: response.user,
-            isAdmin,
-            isSuperAdmin
-        });
+    public login = async (username: string, password: string) => {
+        try {
+            // Faz login via OAuth2
+            await AuthService.login(username, password);
+
+            // Verifica se tem role de admin
+            const hasAdminRole = AuthService.hasRole(UserRole.ADMIN);
+            if (!hasAdminRole) {
+                AuthService.logout();
+                throw new Error("Você não tem permissão de administrador");
+            }
+
+            // Busca dados do usuário
+            const user = await this.fetchUserData();
+            if (!user) {
+                AuthService.logout();
+                throw new Error("Não foi possível carregar dados do usuário");
+            }
+
+            const isSuperAdmin = user.superUser;
+
+            this.setState({
+                isLoggedIn: true,
+                user,
+                isAdmin: hasAdminRole,
+                isSuperAdmin
+            });
+        } catch (error) {
+            AuthService.logout();
+            throw error;
+        }
     };
 
     public logout = async () => {
-        // Remove os tokens e limpa o localStorage
-        const res = await this.postToAuth("/user/p/logout",null)
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        localStorage.removeItem("expiresIn");
-        localStorage.removeItem("user");
+        AuthService.logout();
 
-        console.log(res?.data.message);
-
-        // Atualiza o estado para deslogado
         this.setState({
             isLoggedIn: false,
             user: null,
@@ -106,7 +151,7 @@ export class UserProvider extends BaseComponent<{children: ReactNode}, UserConte
     }
 
     render() {
-        const {isLoggedIn, isAdmin, isSuperAdmin, user, err} = this.state;
+        const { isLoggedIn, isAdmin, isSuperAdmin, user, err } = this.state;
         const contextValue = {
             isLoggedIn,
             isAdmin,

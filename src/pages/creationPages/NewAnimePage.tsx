@@ -1,7 +1,9 @@
 import "../../css/newAnimePage.scss"
-import {BaseCreationPage} from "./BaseCreationPage.tsx";
-import type {FormSchema} from "../../types/FormOption.ts";
-import type {BaseProps} from "../../types/PageTypes.ts";
+import { BaseCreationPage } from "./BaseCreationPage.tsx";
+import type { FormOption, FormSchema } from "../../types/FormOption.ts";
+import type { BaseProps } from "../../types/PageTypes.ts";
+import type { BaseFormState } from "../BaseFormPage.tsx";
+import type { Genre } from "../../types/Genre.ts";
 
 type AnimeData = {
     name: string,
@@ -13,18 +15,12 @@ type AnimeData = {
     quality: string,
 }
 
-const ANIME_FORM_SCHEMA: FormSchema<AnimeData> = {
-    name: { label: "Nome", type:"text" },
-    name2: { label: "Nome alternativo", type:"text" },
-    description: { label: "Descrição", type: "textarea" },
-    releaseDate: {label: "Data lançamento", type: "date"},
-    genre: {label: "Gêneros", type:"array"},
-    state: {label: "Estado", type: "select", options: []},
-    quality: {label: "Quantidade", type: "select"},
+interface NewAnimePageState extends BaseFormState<AnimeData> {
+    genreOptions: FormOption[];
 }
 
-class NewAnimePage extends BaseCreationPage<AnimeData, typeof ANIME_FORM_SCHEMA, BaseProps> {
-    state= {
+class NewAnimePage extends BaseCreationPage<AnimeData, FormSchema<AnimeData>, BaseProps, NewAnimePageState> {
+    state: NewAnimePageState = {
         formData: {
             name: "",
             name2: "",
@@ -34,13 +30,46 @@ class NewAnimePage extends BaseCreationPage<AnimeData, typeof ANIME_FORM_SCHEMA,
             state: "",
             quality: ""
         },
-        arrayOptions: {},
+        genreOptions: [],
         title: "Novo anime",
         err: null,
         loading: false
     }
-    protected getFormSchema(): typeof ANIME_FORM_SCHEMA {
-        return ANIME_FORM_SCHEMA;
+
+    async componentDidMount() {
+        super.componentDidMount();
+        await this.loadGenres();
+    }
+
+    private async loadGenres() {
+        try {
+            const response = await this.getFromApi<Genre[]>("/g/genre/all");
+            if (response?.data.success && response.data.data) {
+                const options: FormOption[] = response.data.data.map(genre => ({
+                    label: genre.name,
+                    value: String(genre.id)
+                }));
+                this.setState({ genreOptions: options });
+            }
+        } catch (error) {
+            console.error("Erro ao carregar gêneros:", error);
+        }
+    }
+
+    protected getFormSchema(): FormSchema<AnimeData> {
+        return {
+            name: { label: "Nome", type: "text" },
+            name2: { label: "Nome alternativo", type: "text" },
+            description: { label: "Descrição", type: "textarea" },
+            releaseDate: { label: "Data lançamento", type: "date" },
+            genre: { label: "Gêneros", type: "multiselect", options: this.state.genreOptions },
+            state: { label: "Estado", type: "select", options: [] },
+            quality: { label: "Qualidade", type: "select", options: [] },
+        };
+    }
+
+    protected getResourceName(): string {
+        return "anime";
     }
 
     protected async handleCreation() {

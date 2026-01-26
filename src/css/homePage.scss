@@ -14,9 +14,21 @@
         flex-direction: column;
         align-items: center;
         .anime-list{
-            padding: 2em 5em;
+            padding: 1em;
             border: 1px white solid;
-            width: 100%
+            width: 100%;
+            
+            .item-list{
+                border: white 1px solid;
+                padding: 1em;
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                align-items: center;
+                p{
+                    width: max-content;
+                }
+            }
         }
         margin-bottom: 1em;
         

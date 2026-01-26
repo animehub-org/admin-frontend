@@ -18,17 +18,19 @@ class GenreCreationPage extends BaseCreationPage<GenreData, typeof GENRE_FORM_SC
         title: "Novo gênero",
         formData: {
             name: ""
-        },
-        arrayOptions: {}
+        }
     }
     protected async handleCreation(): Promise<void>{
-        const response = await this.postToAdminApi<Genre, string>("/genre/new", this.state.formData.name)
+        const response = await this.postToAdminApi<Genre, object>("/genre/new", {name: this.state.formData.name})
         if(response && response.data.success){
             window.location.href = "/genre";
         }
     }
     protected getFormSchema(): FormSchema<GenreData> {
         return GENRE_FORM_SCHEMA;
+    }
+    protected getResourceName(): string {
+        return "genre";
     }
 
 
