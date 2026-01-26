@@ -1,4 +1,4 @@
-import type { BaseState } from "./PageTypes.ts";
+import type {PageState} from "./PageTypes.ts";
 
 export interface FormOption {
     label: string;
@@ -18,7 +18,7 @@ export type FormSchema<T> = {
     [K in keyof T]: FormField | null;
 };
 
-export type FormState<T> = BaseState & {
+export type FormState<T> = PageState & {
     formData: T;
     // arrayOptions: Record<string, FormOption[]>
 };

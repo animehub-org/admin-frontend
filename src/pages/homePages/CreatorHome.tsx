@@ -1,41 +1,41 @@
 import { BaseHomePage, type BaseHomeState } from "../BaseHomePage.tsx";
 import type { BaseProps } from "../../types/PageTypes.ts";
-import type { Genre } from "../../types/Genre.ts";
+import type { Creator } from "../../types/Creator.ts";
 import HomeListComponent from "../../components/HomeListComponent.tsx";
 import React from "react";
 
-type GenreHomeState = BaseHomeState<Genre>;
+type CreatorHomeState = BaseHomeState<Creator>;
 
-class GenreHomePage extends BaseHomePage<BaseProps, GenreHomeState, Genre> {
+class CreatorHomePage extends BaseHomePage<BaseProps, CreatorHomeState, Creator> {
 
     constructor(props: BaseProps) {
         super(props, {
             loading: false,
             err: null,
-            title: "Gêneros",
+            title: "Autores (Creators)",
             items: []
         });
     }
 
     protected getApiUrl(): string {
-        return "/genre/all";
+        return "/creator/all";
     }
 
     protected getPageTitle(): string {
-        return "Gêneros";
+        return "Autores / Criadores";
     }
 
     protected getNewPath(): string {
-        return "/genre/new";
+        return "/creator/new";
     }
 
     protected getNewLabel(): string {
-        return "Novo Gênero";
+        return "Novo Autor";
     }
 
-    protected renderItem(item: Genre): React.ReactNode {
-        return <HomeListComponent type={item} key={item.id} />; // Added key for React list
+    protected renderItem(item: Creator): React.ReactNode {
+        return <HomeListComponent type={item} key={item.id} />;
     }
 }
 
-export default GenreHomePage;
+export default CreatorHomePage;

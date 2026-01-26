@@ -1,6 +1,5 @@
 import axios from "axios";
 import AuthService from "./AuthService";
-import { AUTH_URL, API_URL, USER_URL, ADMIN_URL } from "../Consts";
 
 let isRefreshing = false;
 let failedQueue: any[] = [];

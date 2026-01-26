@@ -32,10 +32,10 @@ class Home extends BasePage<BaseProps, HomePageState>{
                     <div className='division'>
                         <Link to={"/anime/new"}>Novo Anime</Link>
                         <Link to={"/genre"}>Gêneros</Link>
-                        <Link to={"/state/new"}>Novo Estado de Lançamento</Link>
-                        <Link to={"/produtor/new"}>Novo Produtor</Link>
-                        <Link to={"/creator/new"}>Novo Criador</Link>
-                        <Link to={"/studio/new"}>Novo Estúdio</Link>
+                        <Link to={"/state"}>Estado de lançamento</Link>
+                        <Link to={"/produtor"}>Produtores</Link>
+                        <Link to={"/creator"}>Criadores</Link>
+                        <Link to={"/studio"}>Estúdio</Link>
                     </div>
                 </div>
                 <main>
